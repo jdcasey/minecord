@@ -1,0 +1,11 @@
+# Minecord Configuration File
+# Copy this file to minecord.yaml and fill in your values
+
+# Discord Bot Configuration
+discord_token: "your_bot_token_here"
+minecord_channel_id: 123456789012345678  # Optional: Channel ID for startup message
+
+# Minecraft RCON Configuration
+rcon_host: "localhost"      # Minecraft server hostname
+rcon_port: 25575           # RCON port (default: 25575)
+rcon_password: "your_rcon_password_here"  # RCON password 
