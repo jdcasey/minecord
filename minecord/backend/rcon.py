@@ -65,6 +65,29 @@ class MinecraftRCONClient:
         players = [p.strip() for p in player_list_str.split(",")]
         return players
 
+    def list_ops(self) -> List[str]:
+        """
+        Executes the /list ops command and returns a list of authorized operators.
+
+        Returns:
+            A list of operator names. Returns an empty list if no ops are listed.
+        """
+        try:
+            response = self._execute_command("list ops")
+        except MCRconException:
+            return []  # Return empty list on connection/auth failure
+
+        # Typical response: "There are 1/20 players online: player1"
+        # We extract the content after the colon.
+        match = re.search(r":\s*(.*)", response)
+        if not match or not match.group(1):
+            return []  # No players listed
+
+        player_list_str = match.group(1).strip()
+        players = [p.strip() for p in player_list_str.split(",")]
+        return players
+
+
 
 if __name__ == "__main__":
     # Example usage for direct testing of this module

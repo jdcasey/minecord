@@ -1,57 +1,75 @@
 import os
 import discord
-from discord import Client, TextChannel
-from discord.app_commands import CommandTree
+from discord.ext.commands import Bot
+from discord import TextChannel, app_commands
 from discord import Interaction, Intents, Forbidden, HTTPException
 import argparse
+# Assuming your config file logic is in a file named config.py in the same directory
+# If not, you may need to adjust the import path (e.g., from config import ...)
 from .config import Config, create_example_config
 
 
-class MinecordBot(Client):
-
-    def __init__(self, startup_channel_id: int, guild_id: int):
+class MinecordBot(Bot):
+    """
+    A refactored version of the bot that handles command registration
+    and syncing within the class using modern discord.py practices.
+    """
+    def __init__(self, config: Config):
+        # Intents.all() is powerful; for a production bot, you might want to
+        # specify only the intents you truly need.
         super().__init__(command_prefix="/", intents=Intents.all())
-        self.startup_channel_id = startup_channel_id
-        self.guild_id = guild_id
-        self.tree = CommandTree(self)
+        self.startup_channel_id=config.minecord_channel_id
+        self.guild_id=config.guild_id
+        self.config = config
+    
+
+    async def setup_hook(self) -> None:
+        """
+        This special method is called once when the bot is setting up.
+        It's the perfect place to load extensions and sync commands.
+        """
+        print("Running setup_hook...")
+
+        # 1. Load the echo cog.
+        #    This assumes your cog file is at `cogs/echo.py`
+        print("Loading extensions...")
+        await self.load_extension('minecord.cogs.echo')
+        await self.load_extension('minecord.cogs.minecraft')
+        print("Extensions loaded.")
+
+        # 2. Sync the commands that were loaded from the cog.
+        print("Syncing commands...")
+        if self.guild_id:
+            guild = discord.Object(id=self.guild_id)
+            self.tree.copy_global_to(guild=guild)
+            synced = await self.tree.sync(guild=guild)
+            print(f"Synced {len(synced)} command(s) to guild {self.guild_id}.")
+        else:
+            synced = await self.tree.sync()
+            print(f"Synced {len(synced)} command(s) globally.")
+
 
     async def on_ready(self):
         """Called when the bot is connected and ready."""
-        print("Syncing commands...")
-
-        # Sync slash commands with Discord
-        try:
-            # During development, sync to your test server for instant updates
-            if self.guild_id is not None:
-                print(f"Syncing commands to server: {self.guild_id}")
-                synced = await self.tree.sync(guild=discord.Object(id=self.guild_id))
-
-            # For production, sync globally (this can take up to an hour)
-            else:
-                print(f"Syncing commands globally")
-                synced = await self.tree.sync()
-
-            print(f"Synced {len(synced)} command(s):\n\n{synced}")
-        except Exception as e:
-            print(f"Failed to sync commands: {e}")
-
         print(f"Logged in as {self.user} (ID: {self.user.id})")
         print("------")
 
+        # Send a startup message if a channel is configured.
         if self.startup_channel_id:
             try:
                 channel = self.get_channel(self.startup_channel_id)
                 if channel and isinstance(channel, TextChannel):
                     await channel.send("Hello! The Minecord bot is now online.")
                 else:
-                    print(
-                        f"Warning: Could not find channel with ID {self.startup_channel_id}."
-                    )
+                    print(f"Warning: Could not find channel with ID {self.startup_channel_id}.")
             except (ValueError, Forbidden, HTTPException) as e:
-                print(
-                    f"Error sending startup message to channel {self.startup_channel_id}: {e}"
-                )
+                print(f"Error sending startup message to channel {self.startup_channel_id}: {e}")
 
+# --- Command Definition ---
+# By defining the command outside the class but attaching it to an instance,
+# we need to make sure the instance is created first. The refactor below is cleaner.
+# The best practice is to define commands within Cogs or directly on the bot instance
+# before running it. Let's create the bot instance first, then define the command.
 
 def run_bot():
     parser = argparse.ArgumentParser(
@@ -68,23 +86,15 @@ def run_bot():
     Use --print-sample-config to see an example configuration file.
     """,
     )
-    parser.add_argument(
-        "--config", type=str, help="Path to configuration file (YAML format)"
-    )
-    parser.add_argument(
-        "--print-sample-config",
-        action="store_true",
-        help="Print a sample configuration file and exit"
-    )
+    parser.add_argument("--config", type=str, help="Path to configuration file (YAML format)")
+    parser.add_argument("--print-sample-config", action="store_true", help="Print a sample configuration file and exit")
     args = parser.parse_args()
 
-    # Handle --print-sample-config option
     if args.print_sample_config:
         print(create_example_config())
         exit(0)
 
     try:
-        # Load configuration from YAML file
         config = Config(args.config)
     except (FileNotFoundError, ValueError) as e:
         print(f"Configuration error: {e}")
@@ -92,14 +102,12 @@ def run_bot():
         print("  python -m minecord.bot --help")
         exit(1)
 
-    bot = MinecordBot(
-        startup_channel_id=config.minecord_channel_id,
-        guild_id=config.guild_id
-    )
+    # Create the bot instance
+    bot = MinecordBot(config)
 
-    @bot.tree.command()
-    async def echo(interaction: Interaction):
-        await interaction.response.send_message(interaction.message)
-
+    # Run the bot with the token from your config
     bot.run(config.discord_token)
 
+# This allows the script to be run directly
+if __name__ == '__main__':
+    run_bot()
