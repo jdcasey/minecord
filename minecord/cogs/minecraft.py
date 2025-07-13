@@ -26,11 +26,31 @@ class MinecraftCog(commands.Cog):
             online_players = self.minecraft.list_players()
 
             if not online_players:
-                await interaction.response.send_message("No players are currently online.")
+                message = interaction.response.send_message("No players are currently online.")
             else:
                 player_list = ", ".join(online_players)
                 message = f"**Online players ({len(online_players)}):** {player_list}"
-                await interaction.response.send_message(message)
+
+            await interaction.response.send_message(message, ephemeral=True)
+
+        except ConnectionRefusedError:
+            await interaction.response.send_message(
+                "Error: Could not connect to the Minecraft server. "
+                "Please check if the server is running and if RCON is enabled and configured correctly.",
+                ephemeral=True,
+            )
+
+    @app_commands.command(name="fingerprint", description="Retrieve the server automodpack fingerprint.")
+    async def fingerprint(self, interaction: Interaction):
+        """
+        Retrieves the automodpack fingerprint for the Minecraft server.
+        Handles connection errors gracefully.
+        """
+        try:
+            fingerprint = self.minecraft.get_fingerprint()
+
+            message = f"**Automodpack fingerprint:** ```{fingerprint}```"
+            await interaction.response.send_message(message, ephemeral=True)
 
         except ConnectionRefusedError:
             await interaction.response.send_message(

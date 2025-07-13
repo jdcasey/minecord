@@ -65,27 +65,25 @@ class MinecraftRCONClient:
         players = [p.strip() for p in player_list_str.split(",")]
         return players
 
-    def list_ops(self) -> List[str]:
+    def get_fingerprint(self) -> List[str]:
         """
-        Executes the /list ops command and returns a list of authorized operators.
+        Executes the '/automodpack host fingerprint' command and returns the fingerprint.
 
         Returns:
-            A list of operator names. Returns an empty list if no ops are listed.
+            A hexadecimal fingerprint for the server to allow automodpack users to connect
         """
         try:
-            response = self._execute_command("list ops")
+            response = self._execute_command("automodpack host fingerprint")
         except MCRconException:
-            return []  # Return empty list on connection/auth failure
+            return "Failed to retrieve fingerprint"  # Return on connection/auth failure
 
-        # Typical response: "There are 1/20 players online: player1"
-        # We extract the content after the colon.
-        match = re.search(r":\s*(.*)", response)
+        # Typical response: "Certificate fingerprint - 00112233445566778899aabbccddeeff..."
+        # We extract the content after the dash.
+        match = re.search(r"-\s*([a-f0-9]*)", response)
         if not match or not match.group(1):
-            return []  # No players listed
+            return "Unexpected fingerprint response"
 
-        player_list_str = match.group(1).strip()
-        players = [p.strip() for p in player_list_str.split(",")]
-        return players
+        return match.group(1).strip()
 
 
 
