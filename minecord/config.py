@@ -4,6 +4,9 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 
 
+DEFAULT_ADMINS_YAML = os.path.join(os.getcwd(), "admins.yaml")
+
+
 class Config:
     """
     Configuration manager for Minecord that loads settings from YAML files.
@@ -86,6 +89,11 @@ class Config:
         return value
 
     @property
+    def admins_yaml(self) -> str:
+        """Get the admins YAML file path."""
+        return self.get("admins_yaml") or DEFAULT_ADMINS_YAML
+
+    @property
     def discord_token(self) -> str:
         """Get the Discord bot token."""
         return self.get_required("discord_token")
@@ -145,6 +153,9 @@ def create_example_config() -> str:
     """Create an example YAML configuration."""
     return """# Minecord Configuration File
 # This file contains all configuration for the Minecord Discord bot
+
+# Authorization / User mapping
+admins_yaml: "/path/to/admins.yaml"
 
 # Discord Bot Configuration
 discord_token: "your_bot_token_here"

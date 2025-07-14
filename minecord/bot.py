@@ -7,6 +7,10 @@ import argparse
 # Assuming your config file logic is in a file named config.py in the same directory
 # If not, you may need to adjust the import path (e.g., from config import ...)
 from .config import Config, create_example_config
+from .cogs.echo import EchoCog
+from .cogs.minecraft import MinecraftCog
+from .cogs.admin import AdminCog
+from .admins import Admins
 
 
 class MinecordBot(Bot):
@@ -21,6 +25,7 @@ class MinecordBot(Bot):
         self.startup_channel_id=config.minecord_channel_id
         self.guild_id=config.guild_id
         self.config = config
+        self.admins = Admins(config.admins_yaml)
     
 
     async def setup_hook(self) -> None:
@@ -30,11 +35,10 @@ class MinecordBot(Bot):
         """
         print("Running setup_hook...")
 
-        # 1. Load the echo cog.
-        #    This assumes your cog file is at `cogs/echo.py`
         print("Loading extensions...")
-        await self.load_extension('minecord.cogs.echo')
-        await self.load_extension('minecord.cogs.minecraft')
+        await self.add_cog(EchoCog(self))
+        await self.add_cog(MinecraftCog(self))
+        await self.add_cog(AdminCog(self))
         print("Extensions loaded.")
 
         # 2. Sync the commands that were loaded from the cog.

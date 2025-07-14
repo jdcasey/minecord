@@ -2,6 +2,7 @@ import discord
 from discord import app_commands, Interaction
 from discord.ext import commands
 from minecord.backend.rcon import MinecraftRCONClient
+from minecord.config import Config
 
 class MinecraftCog(commands.Cog):
     """A cog for holding the bot's commands."""
@@ -15,6 +16,7 @@ class MinecraftCog(commands.Cog):
         """
         self.bot = bot
         self.minecraft = MinecraftRCONClient(bot.config.rcon_host, bot.config.rcon_port, bot.config.rcon_password)
+        self.admins = bot.admins
 
     @app_commands.command(name="online", description="List online players.")
     async def online(self, interaction: Interaction):
