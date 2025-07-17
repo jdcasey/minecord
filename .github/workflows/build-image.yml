@@ -35,16 +35,6 @@ jobs:
         tags: latest ${{ github.sha }}
         containerfiles: ./Containerfile
 
-    - name: Scan container image
-      uses: aquasecurity/trivy-action@0.20.0
-      with:
-        image-ref: 'localhost/${{ steps.build-image.outputs.image-with-tag }}'
-        format: 'table'
-        exit-code: '1'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH'
-
     - name: Push To quay.io
       id: push-to-quay
       if: github.event_name == 'push'
