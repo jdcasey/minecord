@@ -1,4 +1,4 @@
-name: Build and Scan Minecord Image
+name: Image Build
 
 on:
   workflow_dispatch:

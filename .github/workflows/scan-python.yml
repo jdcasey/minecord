@@ -1,4 +1,4 @@
-name: Scan Minecord Python Dependencies
+name: Python Security Scan
 
 on:
   workflow_dispatch:
