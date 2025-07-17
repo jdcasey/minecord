@@ -5,7 +5,7 @@ LABEL maintainer="John Casey <casey.john.d@gmail.com>"
 LABEL description="Container for the Minecord Discord Bot"
 
 # Install Python and other required packages.
-RUN microdnf install -y python3 python3-pip && \
+RUN microdnf install -y python3 python3-pip which && \
     microdnf clean all
 
 # Set environment variables to improve logging and performance
@@ -30,5 +30,5 @@ RUN pip3 install --no-cache-dir .
 # Switch to the non-root user
 USER minecord
 
-#ENTRYPOINT ["/bin/bash"]
-ENTRYPOINT ["/usr/local/bin/minecord"]
+ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT ["/usr/local/bin/minecord"]
