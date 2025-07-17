@@ -28,7 +28,10 @@ COPY --chown=minecord:minecord pyproject.toml /minecord/pyproject.toml
 USER minecord
 
 WORKDIR /minecord
-RUN python -m venv ./venv && source ./venv/bin/activate && pip install .
+RUN python -m venv ./venv && \
+    source ./venv/bin/activate && \
+    pip install --upgrade pip && \
+    pip install .
 
 ENTRYPOINT ["/bin/bash"]
 #ENTRYPOINT ["/minecord/venv/bin/minecord"]
