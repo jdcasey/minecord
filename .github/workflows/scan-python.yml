@@ -1,0 +1,28 @@
+name: Scan Minecord Python Dependencies
+
+on:
+  workflow_dispatch:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+
+  scan:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Scan for python vulnerabilities
+      uses: aquasecurity/trivy-action@0.20.0
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'library'
+        severity: 'CRITICAL,HIGH'
