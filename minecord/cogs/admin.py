@@ -5,6 +5,8 @@ from minecord.backend.rcon import MinecraftRCONClient
 from minecord.config import Config
 import traceback
 
+MAKE_ADMIN_COMMAND = 'make-admin'
+
 class AdminCog(commands.Cog):
     """A cog for holding the bot's commands."""
 
@@ -29,25 +31,29 @@ class AdminCog(commands.Cog):
         return False
 
 
-    @app_commands.command(name="make-admin", description="Add user to admins list.")
+    @app_commands.command(name=MAKE_ADMIN_COMMAND, description="Add user to admins list.")
     async def make_admin(self, interaction: Interaction, user_mention: str):
         """
         Adds the specified user to the admins list.
         """
-        # try:
-        print(f"Looking up user: {user_mention}")
-        user = await self.bot.fetch_user(int(user_mention[2:-1]))
-        print(f"Got: {user}")
-        if await self._check_authorization(interaction, "make-admin"):
-            self.admins.add_admin(user.id, user.display_name)
-            await interaction.response.send_message(f"{user.display_name} is now an admin on Discord (not a Minecraft op)! 🎉", ephemeral=True)
+        try:
+            print(f"Looking up user: {user_mention}")
+            user = await self.bot.fetch_user(int(user_mention[2:-1]))
+            print(f"Got: {user}")
+            if await self._check_authorization(interaction, MAKE_ADMIN_COMMAND):
+                if not self.admins.can_add_admin(interaction.user.id):
+                    print(f"DENIED: {MAKE_ADMIN_COMMAND} was denied to user: {interaction.user.display_name} ({interaction.user.id})")
+                    await interaction.response.send_message("You are not authorized to make new admins. Your attempt has been logged.", ephemeral=True)
+                else:
+                    self.admins.add_admin(user.id, user.display_name)
+                    await interaction.response.send_message(f"{user.display_name} is now an admin on Discord (not a Minecraft op)! 🎉", ephemeral=True)
 
-        # except Exception as e:
-        #     traceback.format_exc()
-        #     await interaction.response.send_message(
-        #         "An error occurred in this bot's admins module.",
-        #         ephemeral=True,
-        #     )
+        except Exception as e:
+            traceback.format_exc()
+            await interaction.response.send_message(
+                "An error occurred in this bot's admins module.",
+                ephemeral=True,
+            )
 
     @app_commands.command(name="am-i-admin", description="Check whether you're an admin.")
     async def am_i_admin(self, interaction: Interaction):
@@ -57,7 +63,7 @@ class AdminCog(commands.Cog):
                 await interaction.response.send_message("You **are** an admin (here on Discord)! 🎉", ephemeral=True)
             print("returned")
         except Exception as e:
-            print(e)
+            traceback.format_exc()
             await interaction.response.send_message(
                 "An error occurred in this bot's admins module.",
                 ephemeral=True,
