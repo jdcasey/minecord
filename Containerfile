@@ -1,7 +1,7 @@
 # Use Fedora Minimal for a smaller base image.
 FROM fedora-minimal:latest
 
-LABEL maintainer="Gemini Code Assist"
+LABEL maintainer="John Casey <casey.john.d@gmail.com>"
 LABEL description="Container for the Minecord Discord Bot"
 
 # Install Python and other required packages.

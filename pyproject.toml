@@ -10,7 +10,7 @@ authors = [{name = "John Casey", email = "casey.john.d@gmail.com"}]  # Update th
 dependencies = [
     "discord.py==2.3.2",
     "PyYAML==6.0.1",
-    "mcrcon==0.8.0",
+    "mcrcon==0.7.0",
 ]
 
 [tool.pdm]
