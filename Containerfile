@@ -24,11 +24,11 @@ RUN groupadd --system --gid 1001 minecord && \
 COPY --chown=minecord:minecord minecord/ /minecord/minecord/
 COPY --chown=minecord:minecord pyproject.toml /minecord/pyproject.toml
 
-WORKDIR /minecord
-RUN pip3 install --no-cache-dir .
-
 # Switch to the non-root user
 USER minecord
+
+WORKDIR /minecord
+RUN python -m venv ./venv && source ./venv/bin/activate && pip install .
 
 ENTRYPOINT ["/bin/bash"]
 #ENTRYPOINT ["/usr/local/bin/minecord"]
