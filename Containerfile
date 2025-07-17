@@ -33,5 +33,5 @@ RUN python -m venv ./venv && \
     pip install --upgrade pip && \
     pip install .
 
-ENTRYPOINT ["/bin/bash"]
-#ENTRYPOINT ["/minecord/venv/bin/minecord"]
+#ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/minecord/venv/bin/minecord"]
