@@ -38,7 +38,7 @@ class Admins:
         return user_id in self.admins
     
     def can_add_admin(self, user_id: str ) -> bool:
-        return self.admins.get(user_id, {}).get(KEY_ROLE '') == ROLE_ROOT
+        return self.admins.get(user_id, {}).get(KEY_ROLE, '') == ROLE_ROOT
 
     def add_admin(self, user_id: str, user_name: str) -> bool:
         if not user_id in self.admins:
