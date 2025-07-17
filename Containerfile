@@ -30,16 +30,5 @@ RUN pip3 install --no-cache-dir .
 # Switch to the non-root user
 USER minecord
 
-# Set the default command to run the bot.
-# The bot is configured to look for `minecord.yaml` in the current directory ($PWD),
-# which is /app. Users should mount their config and data files.
-#
-# Example usage with Podman:
-# podman build -t minecord-bot -f Containerfile .
-#
-# podman run -d --name minecord \
-#   -v ./minecord.yaml:/app/minecord.yaml:ro,z \
-#   -v ./admins.yaml:/app/admins.yaml:z \
-#   localhost/minecord-bot:latest
-ENTRYPOINT ["/bin/bash"]
-#CMD ["python", "-m", "minecord.bot"]
+#ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/usr/local/bin/minecord"]
