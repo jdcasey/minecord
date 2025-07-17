@@ -31,4 +31,4 @@ WORKDIR /minecord
 RUN python -m venv ./venv && source ./venv/bin/activate && pip install .
 
 ENTRYPOINT ["/bin/bash"]
-#ENTRYPOINT ["/usr/local/bin/minecord"]
+#ENTRYPOINT ["/minecord/venv/bin/minecord"]

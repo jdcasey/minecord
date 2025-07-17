@@ -13,5 +13,9 @@ dependencies = [
     "mcrcon==0.7.0",
 ]
 
+[project.scripts]
+minecord = "minecord.bot:run_bot"
+
+
 [tool.pdm]
 distribution = true
