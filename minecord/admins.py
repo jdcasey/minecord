@@ -20,6 +20,26 @@ class Admins:
             self.path = path
 
         self._load()
+
+    async def check_authorization(self, interaction, command: str) -> bool:
+        """
+        Check if the user is authorized to run admin commands.
+        
+        Args:
+            interaction: Discord interaction object
+            command: Name of the command being executed
+            
+        Returns:
+            True if authorized, False otherwise (and sends denial message)
+        """
+        print(f"Checking for authorization: {interaction.user.display_name} ({interaction.user.id})")
+            
+        if self.is_admin(interaction.user.id):
+            return True
+
+        print(f"DENIED: {command} was denied to user: {interaction.user.display_name} ({interaction.user.id})")
+        await interaction.response.send_message("You are not authorized to access this command. Your attempt has been logged.", ephemeral=True)
+        return False
     
 
     def _load(self) -> List[str]:

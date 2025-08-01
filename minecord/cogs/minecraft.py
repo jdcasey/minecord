@@ -28,14 +28,14 @@ class MinecraftCog(commands.Cog):
             online_players = self.minecraft.list_players()
 
             if not online_players:
-                message = interaction.response.send_message("No players are currently online.")
+                message = "No players are currently online."
             else:
                 player_list = ", ".join(online_players)
                 message = f"**Online players ({len(online_players)}):** {player_list}"
 
             await interaction.response.send_message(message, ephemeral=True)
 
-        except ConnectionRefusedError:
+        except Exception as e:
             await interaction.response.send_message(
                 "Error: Could not connect to the Minecraft server. "
                 "Please check if the server is running and if RCON is enabled and configured correctly.",
@@ -54,10 +54,64 @@ class MinecraftCog(commands.Cog):
             message = f"**Automodpack fingerprint:** ```{fingerprint}```"
             await interaction.response.send_message(message, ephemeral=True)
 
-        except ConnectionRefusedError:
+        except Exception as e:
             await interaction.response.send_message(
                 "Error: Could not connect to the Minecraft server. "
                 "Please check if the server is running and if RCON is enabled and configured correctly.",
+                ephemeral=True,
+            )
+
+    @app_commands.command(name="allow", description="Add a Minecraft user to the server allowlist.")
+    async def allow(self, interaction: Interaction, username: str):
+        """
+        Adds the specified Minecraft user to the server allowlist.
+        Requires administrator authorization.
+        """
+        try:
+            if await self.admins.check_authorization(interaction, "allow"):
+                response = self.minecraft.whitelist_add(username)
+                
+                # Check if the response indicates success or failure
+                if "Failed to add" in response:
+                    await interaction.response.send_message(
+                        f"❌ Error: {response}",
+                        ephemeral=True,
+                    )
+                else:
+                    await interaction.response.send_message(
+                        f"✅ **{username}** is now allowed to join the server.\n```{response}```",
+                        ephemeral=True,
+                    )
+        except Exception as e:
+            await interaction.response.send_message(
+                "An error occurred while adding the user to the server allowlist.",
+                ephemeral=True,
+            )
+
+    @app_commands.command(name="list-allowed", description="Show users allowed to join the server.")
+    async def list_allowed(self, interaction: Interaction):
+        """
+        Shows the users currently allowed to join the server.
+        Requires administrator authorization.
+        """
+        try:
+            if await self.admins.check_authorization(interaction, "list_allowed"):
+                response = self.minecraft.whitelist_list()
+                
+                # Check if the response indicates success or failure
+                if "Failed to retrieve" in response:
+                    await interaction.response.send_message(
+                        f"❌ Error: {response}",
+                        ephemeral=True,
+                    )
+                else:
+                    await interaction.response.send_message(
+                        f"**These users are allowed to join the server:**\n```{response}```",
+                        ephemeral=True,
+                    )
+        except Exception as e:
+            await interaction.response.send_message(
+                "An error occurred while retrieving the server allowlist.",
                 ephemeral=True,
             )
 

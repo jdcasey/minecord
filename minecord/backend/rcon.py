@@ -85,6 +85,34 @@ class MinecraftRCONClient:
 
         return match.group(1).strip()
 
+    def whitelist_add(self, username: str) -> str:
+        """
+        Executes the 'whitelist add <username>' command to add a player to the server whitelist.
+
+        Args:
+            username: The Minecraft username to add to the whitelist
+
+        Returns:
+            The server response message, or an error message if the command fails
+        """
+        try:
+            response = self._execute_command(f"whitelist add {username}")
+            return response
+        except MCRconException:
+            return f"Failed to add {username} to whitelist"  # Return on connection/auth failure
+
+    def whitelist_list(self) -> str:
+        """
+        Executes the 'whitelist list' command to get the current server whitelist.
+
+        Returns:
+            The server response with the whitelist, or an error message if the command fails
+        """
+        try:
+            response = self._execute_command("whitelist list")
+            return response
+        except MCRconException:
+            return "Failed to retrieve allowlist"  # Return on connection/auth failure
 
 
 if __name__ == "__main__":

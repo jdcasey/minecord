@@ -7,7 +7,6 @@ import argparse
 # Assuming your config file logic is in a file named config.py in the same directory
 # If not, you may need to adjust the import path (e.g., from config import ...)
 from .config import Config, create_example_config
-from .cogs.echo import EchoCog
 from .cogs.minecraft import MinecraftCog
 from .cogs.admin import AdminCog
 from .admins import Admins
@@ -36,7 +35,6 @@ class MinecordBot(Bot):
         print("Running setup_hook...")
 
         print("Loading extensions...")
-        await self.add_cog(EchoCog(self))
         await self.add_cog(MinecraftCog(self))
         await self.add_cog(AdminCog(self))
         print("Extensions loaded.")
